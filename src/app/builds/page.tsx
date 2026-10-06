@@ -2,6 +2,8 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 
+export const dynamic = 'force-dynamic'
+
 const ROLE_LABELS: Record<string, string> = {
   top: 'Üst Koridor',
   jungle: 'Orman',
@@ -32,19 +34,16 @@ export default async function BuildsPage({
   const { role, q } = await searchParams
   const supabase = await createClient()
 
-  // Sorgu başlangıcı: sadece yayınlanmış build'ler
   let query = supabase
     .from('builds')
     .select('id, title, champion, role, created_at')
     .eq('status', 'published')
     .order('created_at', { ascending: false })
 
-  // Rol filtresi
   if (role && role !== '') {
     query = query.eq('role', role)
   }
 
-  // Şampiyon / başlık arama
   if (q && q.trim() !== '') {
     const search = `%${q.trim()}%`
     query = query.or(`champion.ilike.${search},title.ilike.${search}`)
@@ -54,7 +53,6 @@ export default async function BuildsPage({
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      {/* Başlık */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white">Build&apos;ler</h1>
         <p className="mt-2 text-gray-400">
@@ -62,7 +60,6 @@ export default async function BuildsPage({
         </p>
       </div>
 
-      {/* Arama ve filtre */}
       <form
         method="GET"
         className="mb-8 flex flex-wrap gap-3 rounded-lg border border-gray-800 bg-gray-900 p-4"
@@ -108,7 +105,6 @@ export default async function BuildsPage({
         )}
       </form>
 
-      {/* Aktif filtre göstergesi */}
       {(role || q) && (
         <div className="mb-6 flex flex-wrap items-center gap-2 text-sm text-gray-400">
           <span>Filtre:</span>
@@ -119,25 +115,22 @@ export default async function BuildsPage({
           )}
           {role && (
             <span className="rounded-full bg-gray-800 px-3 py-1">
-              Rol: <strong className="text-white">
+              Rol:{' '}
+              <strong className="text-white">
                 {ROLE_LABELS[role] ?? role}
               </strong>
             </span>
           )}
-          <span className="text-xs">
-            ({builds?.length ?? 0} sonuç)
-          </span>
+          <span className="text-xs">({builds?.length ?? 0} sonuç)</span>
         </div>
       )}
 
-      {/* Hata */}
       {error && (
         <div className="rounded-md bg-red-950 p-4 text-sm text-red-400">
           Hata: {error.message}
         </div>
       )}
 
-      {/* Boş sonuç */}
       {!error && (!builds || builds.length === 0) && (
         <div className="rounded-lg border border-dashed border-gray-800 bg-gray-900/50 p-12 text-center">
           <p className="text-4xl">🔍</p>
@@ -155,7 +148,6 @@ export default async function BuildsPage({
         </div>
       )}
 
-      {/* Build grid */}
       {builds && builds.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {builds.map((build) => (
@@ -170,10 +162,8 @@ export default async function BuildsPage({
                     {build.title}
                   </h3>
                   <p className="mt-1 text-sm text-gray-400">
-                    <span className="text-yellow-500">
-                      {build.champion}
-                    </span>{' '}
-                    · {ROLE_LABELS[build.role] ?? build.role}
+                    <span className="text-yellow-500">{build.champion}</span> ·{' '}
+                    {ROLE_LABELS[build.role] ?? build.role}
                   </p>
                 </div>
               </div>

@@ -2,6 +2,8 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 
+export const dynamic = 'force-dynamic'
+
 export default async function HomePage() {
   const supabase = await createClient()
 
@@ -60,9 +62,7 @@ export default async function HomePage() {
 
         {!error && (!builds || builds.length === 0) && (
           <div className="rounded-lg border border-dashed border-gray-800 bg-gray-900/50 p-12 text-center">
-            <p className="text-gray-400">
-              Henüz yayınlanmış build yok.
-            </p>
+            <p className="text-gray-400">Henüz yayınlanmış build yok.</p>
             <Link
               href="/builds/new"
               className="mt-4 inline-block text-yellow-500 hover:underline"

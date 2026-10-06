@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
+export const dynamic = 'force-dynamic'
+
 const ROLE_LABELS: Record<string, string> = {
   top: 'Üst Koridor',
   jungle: 'Orman',
@@ -22,7 +24,6 @@ export default async function FavoritesPage() {
     redirect('/login')
   }
 
-  // Favorileri, ilişkili build bilgisiyle birlikte çek
   const { data: favorites, error } = await supabase
     .from('favorites')
     .select(
@@ -51,9 +52,7 @@ export default async function FavoritesPage() {
         >
           ← Panel
         </Link>
-        <h1 className="mt-3 text-3xl font-bold text-white">
-          ⭐ Favorilerim
-        </h1>
+        <h1 className="mt-3 text-3xl font-bold text-white">⭐ Favorilerim</h1>
         <p className="mt-2 text-gray-400">
           Favorilere eklediğin build&apos;ler burada.
         </p>
@@ -68,9 +67,7 @@ export default async function FavoritesPage() {
       {!error && (!favorites || favorites.length === 0) && (
         <div className="rounded-lg border border-dashed border-gray-800 bg-gray-900/50 p-12 text-center">
           <p className="text-4xl">☆</p>
-          <p className="mt-4 text-gray-400">
-            Henüz favori build&apos;in yok.
-          </p>
+          <p className="mt-4 text-gray-400">Henüz favori build&apos;in yok.</p>
           <Link
             href="/builds"
             className="mt-4 inline-block text-yellow-500 hover:underline"

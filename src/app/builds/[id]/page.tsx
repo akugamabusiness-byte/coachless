@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import FavoriteButton from '@/components/FavoriteButton'
 
+export const dynamic = 'force-dynamic'
+
 const ROLE_LABELS: Record<string, string> = {
   top: 'Üst Koridor',
   jungle: 'Orman',
@@ -24,7 +26,6 @@ export default async function BuildDetailPage({
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Build'i çek
   const { data: build, error } = await supabase
     .from('builds')
     .select('*')
@@ -35,14 +36,12 @@ export default async function BuildDetailPage({
     notFound()
   }
 
-  // Draft ve sahibi değilse → erişim yok
   if (build.status === 'draft' && build.user_id !== user?.id) {
     notFound()
   }
 
   const isOwner = user?.id === build.user_id
 
-  // Favori durumunu kontrol et
   let isFavorited = false
   if (user) {
     const { data: fav } = await supabase
@@ -54,7 +53,6 @@ export default async function BuildDetailPage({
     isFavorited = !!fav
   }
 
-  // Toplam favori sayısı
   const { count: favoriteCount } = await supabase
     .from('favorites')
     .select('id', { count: 'exact', head: true })
@@ -74,7 +72,6 @@ export default async function BuildDetailPage({
         </Link>
       </div>
 
-      {/* Başlık + Meta */}
       <header className="mb-8 border-b border-gray-800 pb-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -94,12 +91,10 @@ export default async function BuildDetailPage({
               <span className="font-medium text-yellow-500">
                 {build.champion}
               </span>{' '}
-              ·{' '}
-              <span>{ROLE_LABELS[build.role] ?? build.role}</span>
+              · <span>{ROLE_LABELS[build.role] ?? build.role}</span>
             </p>
           </div>
 
-          {/* Favori butonu (kendi build'in değilse) */}
           {!isOwner && (
             <FavoriteButton
               buildId={build.id}
@@ -108,7 +103,6 @@ export default async function BuildDetailPage({
             />
           )}
 
-          {/* Kendi build'in ise düzenle butonu */}
           {isOwner && (
             <div className="flex gap-2">
               <Link
@@ -136,9 +130,7 @@ export default async function BuildDetailPage({
         </p>
       </header>
 
-      {/* İçerik grid */}
       <div className="space-y-8">
-        {/* Item'lar */}
         {items.length > 0 && (
           <section className="rounded-lg border border-gray-800 bg-gray-900 p-6">
             <h2 className="mb-4 text-lg font-semibold text-white">
@@ -146,10 +138,7 @@ export default async function BuildDetailPage({
             </h2>
             <ol className="space-y-2">
               {items.map((item: any, i: number) => (
-                <li
-                  key={i}
-                  className="flex items-center gap-3 text-gray-300"
-                >
+                <li key={i} className="flex items-center gap-3 text-gray-300">
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-800 text-xs font-medium text-yellow-500">
                     {i + 1}
                   </span>
@@ -160,7 +149,6 @@ export default async function BuildDetailPage({
           </section>
         )}
 
-        {/* Rünler */}
         {runesRaw && (
           <section className="rounded-lg border border-gray-800 bg-gray-900 p-6">
             <h2 className="mb-4 text-lg font-semibold text-white">
@@ -172,7 +160,6 @@ export default async function BuildDetailPage({
           </section>
         )}
 
-        {/* Açıklama */}
         {build.description && (
           <section className="rounded-lg border border-gray-800 bg-gray-900 p-6">
             <h2 className="mb-4 text-lg font-semibold text-white">
@@ -184,7 +171,6 @@ export default async function BuildDetailPage({
           </section>
         )}
 
-        {/* Hiç içerik yoksa */}
         {items.length === 0 && !runesRaw && !build.description && (
           <div className="rounded-lg border border-dashed border-gray-800 bg-gray-900/50 p-8 text-center text-gray-500">
             Bu build&apos;de henüz detay yok.

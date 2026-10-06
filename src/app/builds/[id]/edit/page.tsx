@@ -4,6 +4,8 @@ import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import EditForm from './EditForm'
 
+export const dynamic = 'force-dynamic'
+
 export default async function EditBuildPage({
   params,
 }: {
@@ -30,12 +32,10 @@ export default async function EditBuildPage({
     notFound()
   }
 
-  // Sahibi değilse düzenleyemez
   if (build.user_id !== user.id) {
     notFound()
   }
 
-  // items ve runes'u forma uygun formata çevir
   const itemsText = Array.isArray(build.items)
     ? build.items.map((it: any) => it.name ?? '').join('\n')
     : ''

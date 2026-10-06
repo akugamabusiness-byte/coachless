@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import BuildActions from './BuildActions'
 
+export const dynamic = 'force-dynamic'
+
 const ROLE_LABELS: Record<string, string> = {
   top: 'Üst Koridor',
   jungle: 'Orman',
@@ -23,7 +25,6 @@ export default async function MyBuildsPage() {
     redirect('/login')
   }
 
-  // Kendi build'lerini çek
   const { data: builds, error } = await supabase
     .from('builds')
     .select('*')
@@ -77,7 +78,6 @@ export default async function MyBuildsPage() {
         </div>
       )}
 
-      {/* İstatistik satırı */}
       {builds && builds.length > 0 && (
         <div className="mb-8 grid gap-4 sm:grid-cols-3">
           <div className="rounded-lg border border-gray-800 bg-gray-900 p-4">
@@ -101,7 +101,6 @@ export default async function MyBuildsPage() {
         </div>
       )}
 
-      {/* Draft'lar */}
       {drafts.length > 0 && (
         <section className="mb-10">
           <h2 className="mb-4 text-xl font-semibold text-white">
@@ -118,7 +117,6 @@ export default async function MyBuildsPage() {
         </section>
       )}
 
-      {/* Yayında olanlar */}
       {published.length > 0 && (
         <section>
           <h2 className="mb-4 text-xl font-semibold text-white">
@@ -138,7 +136,6 @@ export default async function MyBuildsPage() {
   )
 }
 
-// Yardımcı: Tek build satırı
 function BuildRow({ build }: { build: any }) {
   return (
     <div className="rounded-lg border border-gray-800 bg-gray-900 p-4 transition hover:border-gray-700">
