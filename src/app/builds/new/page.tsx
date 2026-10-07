@@ -5,38 +5,22 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import ChampionPicker from '@/components/ChampionPicker'
+import ItemPicker from '@/components/ItemPicker'
+import RunePicker from '@/components/RunePicker'
+import {
+  runeConfigToRaw,
+  EMPTY_RUNE_CONFIG,
+  type RuneConfig,
+} from '@/lib/lol/data'
 
 const ROLES = [
-  { value: 'top', label: 'Üst Koridor (Top)' },
-  { value: 'jungle', label: 'Orman (Jungle)' },
-  { value: 'mid', label: 'Orta Koridor (Mid)' },
-  { value: 'adc', label: 'Alt Koridor (ADC)' },
-  { value: 'support', label: 'Destek (Support)' },
+  { value: 'top', label: '⚔️ Üst Koridor (Top)' },
+  { value: 'jungle', label: '🌲 Orman (Jungle)' },
+  { value: 'mid', label: '🔮 Orta Koridor (Mid)' },
+  { value: 'adc', label: '🏹 Alt Koridor (ADC)' },
+  { value: 'support', label: '🛡️ Destek (Support)' },
 ]
-
-// Örnek şampiyon listesi (sonra Riot API'den çekeceğiz)
-const CHAMPIONS = [
-  'Ahri', 'Akali', 'Alistar', 'Amumu', 'Annie', 'Ashe', 'Azir',
-  'Blitzcrank', 'Brand', 'Braum', 'Caitlyn', 'Camille', 'Cassiopeia',
-  'Darius', 'Diana', 'Dr. Mundo', 'Draven', 'Ekko', 'Elise', 'Evelynn',
-  'Ezreal', 'Fiora', 'Fizz', 'Galio', 'Garen', 'Gnar', 'Gragas',
-  'Graves', 'Hecarim', 'Heimerdinger', 'Illaoi', 'Irelia', 'Janna',
-  'Jarvan IV', 'Jax', 'Jayce', 'Jhin', 'Jinx', 'Kai\'Sa', 'Karma',
-  'Karthus', 'Kassadin', 'Katarina', 'Kayle', 'Kennen', 'Kha\'Zix',
-  'Kindred', 'Kled', 'Kog\'Maw', 'LeBlanc', 'Lee Sin', 'Leona',
-  'Lissandra', 'Lucian', 'Lulu', 'Lux', 'Malphite', 'Malzahar',
-  'Maokai', 'Master Yi', 'Miss Fortune', 'Mordekaiser', 'Morgana',
-  'Nami', 'Nasus', 'Nautilus', 'Nidalee', 'Nocturne', 'Olaf', 'Orianna',
-  'Pantheon', 'Poppy', 'Pyke', 'Qiyana', 'Rakan', 'Rammus', 'Renekton',
-  'Rengar', 'Riven', 'Rumble', 'Ryze', 'Sejuani', 'Sett', 'Shaco',
-  'Shen', 'Shyvana', 'Singed', 'Sion', 'Sivir', 'Skarner', 'Sona',
-  'Soraka', 'Swain', 'Sylas', 'Syndra', 'Talon', 'Taric', 'Teemo',
-  'Thresh', 'Tristana', 'Trundle', 'Tryndamere', 'Twisted Fate',
-  'Twitch', 'Udyr', 'Urgot', 'Varus', 'Vayne', 'Veigar', 'Vel\'Koz',
-  'Vi', 'Viktor', 'Vladimir', 'Volibear', 'Warwick', 'Wukong',
-  'Xayah', 'Xerath', 'Xin Zhao', 'Yasuo', 'Yorick', 'Yuumi', 'Zac',
-  'Zed', 'Ziggs', 'Zilean', 'Zoe', 'Zyra',
-].sort()
 
 export default function NewBuildPage() {
   const router = useRouter()
@@ -45,8 +29,8 @@ export default function NewBuildPage() {
   const [title, setTitle] = useState('')
   const [champion, setChampion] = useState('')
   const [role, setRole] = useState('mid')
-  const [itemsText, setItemsText] = useState('')
-  const [runesText, setRunesText] = useState('')
+  const [items, setItems] = useState<{ id: number; name: string }[]>([])
+  const [runes, setRunes] = useState<RuneConfig>(EMPTY_RUNE_CONFIG)
   const [description, setDescription] = useState('')
   const [status, setStatus] = useState<'draft' | 'published'>('draft')
 
@@ -56,9 +40,14 @@ export default function NewBuildPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+
+    if (!champion.trim()) {
+      setError('Lütfen bir şampiyon seç.')
+      return
+    }
+
     setLoading(true)
 
-    // Oturum kontrolü
     const {
       data: { user },
     } = await supabase.auth.getUser()
@@ -69,15 +58,15 @@ export default function NewBuildPage() {
       return
     }
 
-    // Item'ları ve rünleri dizi/obje haline getir
-    const items = itemsText
-      .split('\n')
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .map((name, i) => ({ slot: i + 1, name }))
+    const itemsForDb = items.map((item, i) => ({
+      slot: i + 1,
+      id: item.id,
+      name: item.name,
+    }))
 
-    const runes = {
-      raw: runesText.trim(),
+    const runesData = {
+      raw: runeConfigToRaw(runes),
+      config: runes,
     }
 
     const { data, error: insertError } = await supabase
@@ -87,8 +76,8 @@ export default function NewBuildPage() {
         title: title.trim(),
         champion: champion.trim(),
         role,
-        items,
-        runes,
+        items: itemsForDb,
+        runes: runesData,
         description: description.trim() || null,
         status,
       })
@@ -101,83 +90,77 @@ export default function NewBuildPage() {
       return
     }
 
-    // Başarılı → build detayına veya panele git
     router.push(`/builds/${data.id}`)
     router.refresh()
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <div className="mb-8">
-        <Link
-          href="/"
-          className="text-sm text-gray-400 hover:text-yellow-500"
-        >
-          ← Ana sayfa
-        </Link>
-        <h1 className="mt-3 text-3xl font-bold text-white">
-          Yeni Build Oluştur
-        </h1>
-        <p className="mt-2 text-gray-400">
-          Build&apos;ini paylaş ya da kendine sakla (draft).
-        </p>
+    <div className="relative min-h-screen">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-[#c8aa6e]/5 blur-[120px]" />
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-6 rounded-lg border border-gray-800 bg-gray-900 p-6"
-      >
-        {error && (
-          <div className="rounded-md bg-red-950 p-3 text-sm text-red-400">
-            {error}
-          </div>
-        )}
-
+      <div className="relative mx-auto max-w-3xl px-6 py-12">
         {/* Başlık */}
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-300">
-            Build Başlığı *
-          </label>
-          <input
-            type="text"
-            required
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Örn: Ahri Mid Full AP Burst"
-            className="w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-white outline-none focus:border-yellow-500"
-          />
+        <div className="mb-10">
+          <Link
+            href="/"
+            className="text-sm text-[#a09b8c] transition hover:text-[#c8aa6e]"
+          >
+            ← Ana sayfa
+          </Link>
+          <h1 className="mt-3 text-4xl font-bold text-[#f0e6d2]">
+            Yeni <span className="text-gradient-gold">Build</span> Oluştur
+          </h1>
+          <p className="mt-2 text-[#a09b8c]">
+            Build&apos;ini paylaş ya da kendine sakla (draft).
+          </p>
         </div>
 
-        {/* Şampiyon + Rol (yan yana) */}
-        <div className="grid gap-4 sm:grid-cols-2">
+        <form onSubmit={handleSubmit} className="card-lol space-y-6 p-8">
+          {error && (
+            <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
+              {error}
+            </div>
+          )}
+
+          {/* Başlık */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-300">
-              Şampiyon *
+            <label className="mb-2 block text-xs font-medium uppercase tracking-widest text-[#5b5a56]">
+              Build Başlığı *
             </label>
-            <select
+            <input
+              type="text"
               required
-              value={champion}
-              onChange={(e) => setChampion(e.target.value)}
-              className="w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-white outline-none focus:border-yellow-500"
-            >
-              <option value="">Seç...</option>
-              {CHAMPIONS.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Örn: Ahri Mid Full AP Burst"
+              className="w-full rounded-md border border-[#1e3a5f] bg-[#0a1428] px-3 py-2.5 text-[#f0e6d2] placeholder-[#5b5a56] outline-none transition focus:border-[#c8aa6e]"
+            />
           </div>
 
+          {/* Şampiyon */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-300">
+            <label className="mb-2 block text-xs font-medium uppercase tracking-widest text-[#5b5a56]">
+              Şampiyon *
+            </label>
+            <ChampionPicker
+              value={champion}
+              onChange={setChampion}
+              required
+            />
+          </div>
+
+          {/* Rol */}
+          <div>
+            <label className="mb-2 block text-xs font-medium uppercase tracking-widest text-[#5b5a56]">
               Rol *
             </label>
             <select
               required
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-white outline-none focus:border-yellow-500"
+              className="w-full rounded-md border border-[#1e3a5f] bg-[#0a1428] px-3 py-2.5 text-[#f0e6d2] outline-none transition focus:border-[#c8aa6e]"
             >
               {ROLES.map((r) => (
                 <option key={r.value} value={r.value}>
@@ -186,118 +169,114 @@ export default function NewBuildPage() {
               ))}
             </select>
           </div>
-        </div>
 
-        {/* Item'lar */}
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-300">
-            Item&apos;lar
-          </label>
-          <textarea
-            value={itemsText}
-            onChange={(e) => setItemsText(e.target.value)}
-            rows={5}
-            placeholder={'Her satıra bir item:\nLuden\'s Companion\nSorcerer\'s Shoes\nRabadon\'s Deathcap\nVoid Staff\nZhonya\'s Hourglass\nShadowflame'}
-            className="w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 font-mono text-sm text-white outline-none focus:border-yellow-500"
-          />
-          <p className="mt-1 text-xs text-gray-500">
-            Her satıra bir item yaz. Sıra numarası otomatik atanır.
-          </p>
-        </div>
-
-        {/* Rünler */}
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-300">
-            Rünler
-          </label>
-          <textarea
-            value={runesText}
-            onChange={(e) => setRunesText(e.target.value)}
-            rows={4}
-            placeholder={'Örn:\nAna Ağaç: Sihir (Sorcery)\nAnahtar: Summon Aery\nYan Ağaç: İlham (Inspiration)'}
-            className="w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-white outline-none focus:border-yellow-500"
-          />
-          <p className="mt-1 text-xs text-gray-500">
-            Serbest metin — istediğin gibi yazabilirsin.
-          </p>
-        </div>
-
-        {/* Açıklama */}
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-300">
-            Açıklama / Notlar
-          </label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={4}
-            placeholder="Oynanış tarzı, kombolar, güçlü/zayıf dönemler..."
-            className="w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-white outline-none focus:border-yellow-500"
-          />
-        </div>
-
-        {/* Durum */}
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-300">
-            Yayın Durumu
-          </label>
-          <div className="flex gap-3">
-            <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-md border border-gray-700 bg-gray-800 px-4 py-3 transition hover:border-yellow-500/50">
-              <input
-                type="radio"
-                name="status"
-                value="draft"
-                checked={status === 'draft'}
-                onChange={() => setStatus('draft')}
-                className="accent-yellow-500"
-              />
-              <div>
-                <div className="text-sm font-medium text-white">Draft</div>
-                <div className="text-xs text-gray-400">
-                  Sadece sen görürsün
-                </div>
-              </div>
+          {/* Item'lar */}
+          <div>
+            <label className="mb-2 block text-xs font-medium uppercase tracking-widest text-[#5b5a56]">
+              Item&apos;lar (maks. 6)
             </label>
-            <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-md border border-gray-700 bg-gray-800 px-4 py-3 transition hover:border-yellow-500/50">
-              <input
-                type="radio"
-                name="status"
-                value="published"
-                checked={status === 'published'}
-                onChange={() => setStatus('published')}
-                className="accent-yellow-500"
-              />
-              <div>
-                <div className="text-sm font-medium text-white">Yayınla</div>
-                <div className="text-xs text-gray-400">
-                  Herkes görebilir
-                </div>
-              </div>
-            </label>
+            <ItemPicker value={items} onChange={setItems} max={6} />
           </div>
-        </div>
 
-        {/* Submit */}
-        <div className="flex justify-end gap-3 border-t border-gray-800 pt-6">
-          <Link
-            href="/"
-            className="rounded-md border border-gray-700 px-4 py-2 text-sm text-gray-300 transition hover:border-gray-600"
-          >
-            İptal
-          </Link>
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded-md bg-yellow-500 px-6 py-2 text-sm font-medium text-gray-950 transition hover:bg-yellow-400 disabled:opacity-50"
-          >
-            {loading
-              ? 'Kaydediliyor...'
-              : status === 'published'
-              ? 'Yayınla'
-              : 'Draft Olarak Kaydet'}
-          </button>
-        </div>
-      </form>
+          {/* Rünler */}
+          <div>
+            <label className="mb-2 block text-xs font-medium uppercase tracking-widest text-[#5b5a56]">
+              Rün Sayfası
+            </label>
+            <RunePicker value={runes} onChange={setRunes} />
+          </div>
+
+          {/* Açıklama */}
+          <div>
+            <label className="mb-2 block text-xs font-medium uppercase tracking-widest text-[#5b5a56]">
+              Açıklama / Notlar
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={4}
+              placeholder="Oynanış tarzı, kombolar, güçlü/zayıf dönemler..."
+              className="w-full rounded-md border border-[#1e3a5f] bg-[#0a1428] px-3 py-2.5 text-sm text-[#f0e6d2] placeholder-[#5b5a56] outline-none transition focus:border-[#c8aa6e]"
+            />
+          </div>
+
+          {/* Durum */}
+          <div>
+            <label className="mb-2 block text-xs font-medium uppercase tracking-widest text-[#5b5a56]">
+              Yayın Durumu
+            </label>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label
+                className={`flex cursor-pointer items-start gap-3 rounded-md border p-4 transition ${
+                  status === 'draft'
+                    ? 'border-[#c8aa6e] bg-[#785a28]/10'
+                    : 'border-[#1e3a5f] bg-[#0a1428] hover:border-[#785a28]'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="status"
+                  value="draft"
+                  checked={status === 'draft'}
+                  onChange={() => setStatus('draft')}
+                  className="mt-1 accent-[#c8aa6e]"
+                />
+                <div>
+                  <div className="text-sm font-medium text-[#f0e6d2]">
+                    📝 Draft
+                  </div>
+                  <div className="mt-0.5 text-xs text-[#a09b8c]">
+                    Sadece sen görürsün
+                  </div>
+                </div>
+              </label>
+
+              <label
+                className={`flex cursor-pointer items-start gap-3 rounded-md border p-4 transition ${
+                  status === 'published'
+                    ? 'border-[#c8aa6e] bg-[#785a28]/10'
+                    : 'border-[#1e3a5f] bg-[#0a1428] hover:border-[#785a28]'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="status"
+                  value="published"
+                  checked={status === 'published'}
+                  onChange={() => setStatus('published')}
+                  className="mt-1 accent-[#c8aa6e]"
+                />
+                <div>
+                  <div className="text-sm font-medium text-[#f0e6d2]">
+                    🚀 Yayınla
+                  </div>
+                  <div className="mt-0.5 text-xs text-[#a09b8c]">
+                    Herkes görebilir
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          {/* Submit */}
+          <div className="flex justify-end gap-3 border-t border-[#1e3a5f] pt-6">
+            <Link href="/" className="btn-secondary">
+              İptal
+            </Link>
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary disabled:opacity-50"
+            >
+              {loading
+                ? 'Kaydediliyor...'
+                : status === 'published'
+                ? '🚀 Yayınla'
+                : '📝 Draft Olarak Kaydet'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }

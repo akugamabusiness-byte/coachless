@@ -2,12 +2,10 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
 export default function RegisterPage() {
-  const router = useRouter()
   const supabase = createClient()
 
   const [email, setEmail] = useState('')
@@ -47,25 +45,29 @@ export default function RegisterPage() {
       return
     }
 
-    // E-posta doğrulama açıksa burada "e-postanı kontrol et" deriz
-    // Kapalıysa direkt /dashboard'a gidebilir
     setSuccess(true)
     setLoading(false)
   }
 
   if (success) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-950 px-4">
-        <div className="w-full max-w-md rounded-lg bg-gray-900 p-6 text-center shadow-lg">
-          <h2 className="text-2xl font-bold text-white">E-postanı kontrol et</h2>
-          <p className="mt-3 text-gray-400">
-            <strong className="text-white">{email}</strong> adresine bir
-            doğrulama bağlantısı gönderdik. Bağlantıya tıklayarak hesabını
-            aktifleştir.
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-40 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-[#c8aa6e]/10 blur-[120px]" />
+        </div>
+
+        <div className="card-lol relative w-full max-w-md p-8 text-center">
+          <div className="mb-4 text-5xl">📧</div>
+          <h2 className="text-2xl font-bold text-[#f0e6d2]">
+            E-postanı kontrol et
+          </h2>
+          <p className="mt-3 text-sm text-[#a09b8c]">
+            <strong className="text-[#c8aa6e]">{email}</strong> adresine bir
+            doğrulama bağlantısı gönderdik.
           </p>
           <Link
             href="/login"
-            className="mt-6 inline-block text-blue-400 hover:underline"
+            className="mt-6 inline-block btn-secondary"
           >
             Giriş sayfasına dön
           </Link>
@@ -75,49 +77,67 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-950 px-4">
-      <div className="w-full max-w-md">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-12">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-40 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-[#c8aa6e]/10 blur-[120px]" />
+        <div className="absolute bottom-0 left-0 h-96 w-96 rounded-full bg-[#7b3fe4]/10 blur-[120px]" />
+      </div>
+
+      <div className="relative w-full max-w-md">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-white">LoL Coachless</h1>
-          <p className="mt-2 text-gray-400">Yeni hesap oluştur</p>
+          <Link href="/" className="inline-flex items-center gap-2">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-gradient-to-br from-[#c8aa6e] to-[#785a28] text-sm font-bold text-[#010a13]">
+              LC
+            </div>
+          </Link>
+          <h1 className="mt-6 text-3xl font-bold text-[#f0e6d2]">
+            Hesap oluştur
+          </h1>
+          <p className="mt-2 text-sm text-[#a09b8c]">
+            Build paylaşmaya başlamak için kayıt ol
+          </p>
         </div>
 
         <form
           onSubmit={handleRegister}
-          className="space-y-4 rounded-lg bg-gray-900 p-6 shadow-lg"
+          className="card-lol space-y-5 p-8"
         >
           {error && (
-            <div className="rounded-md bg-red-950 p-3 text-sm text-red-400">
+            <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
               {error}
             </div>
           )}
 
           <div>
-            <label className="mb-1 block text-sm text-gray-300">E-posta</label>
+            <label className="mb-2 block text-xs font-medium uppercase tracking-widest text-[#5b5a56]">
+              E-posta
+            </label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-white outline-none focus:border-blue-500"
+              className="w-full rounded-md border border-[#1e3a5f] bg-[#0a1428] px-3 py-2.5 text-[#f0e6d2] placeholder-[#5b5a56] outline-none transition focus:border-[#c8aa6e]"
               placeholder="ornek@email.com"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-sm text-gray-300">Şifre</label>
+            <label className="mb-2 block text-xs font-medium uppercase tracking-widest text-[#5b5a56]">
+              Şifre
+            </label>
             <input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-white outline-none focus:border-blue-500"
+              className="w-full rounded-md border border-[#1e3a5f] bg-[#0a1428] px-3 py-2.5 text-[#f0e6d2] placeholder-[#5b5a56] outline-none transition focus:border-[#c8aa6e]"
               placeholder="En az 6 karakter"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-sm text-gray-300">
+            <label className="mb-2 block text-xs font-medium uppercase tracking-widest text-[#5b5a56]">
               Şifre (tekrar)
             </label>
             <input
@@ -125,7 +145,7 @@ export default function RegisterPage() {
               required
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
-              className="w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-white outline-none focus:border-blue-500"
+              className="w-full rounded-md border border-[#1e3a5f] bg-[#0a1428] px-3 py-2.5 text-[#f0e6d2] placeholder-[#5b5a56] outline-none transition focus:border-[#c8aa6e]"
               placeholder="••••••••"
             />
           </div>
@@ -133,14 +153,19 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-md bg-blue-600 py-2 font-medium text-white transition hover:bg-blue-500 disabled:opacity-50"
+            className="btn-primary w-full disabled:opacity-50"
           >
             {loading ? 'Hesap oluşturuluyor...' : 'Kayıt Ol'}
           </button>
 
-          <p className="text-center text-sm text-gray-400">
+          <div className="divider-lol !my-4" />
+
+          <p className="text-center text-sm text-[#a09b8c]">
             Zaten hesabın var mı?{' '}
-            <Link href="/login" className="text-blue-400 hover:underline">
+            <Link
+              href="/login"
+              className="font-medium text-[#c8aa6e] transition hover:text-[#f0e6d2]"
+            >
               Giriş yap
             </Link>
           </p>

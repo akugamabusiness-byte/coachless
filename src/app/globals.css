@@ -1,26 +1,474 @@
-@import "tailwindcss";
+/* src/app/globals.css */
+@import 'tailwindcss';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ============================================
+   LoL COACHLESS — TEMA
+   ============================================ */
+
+@theme {
+  /* Ana renkler — LoL paleti */
+  --color-lol-gold: #c8aa6e;
+  --color-lol-gold-light: #f0e6d2;
+  --color-lol-gold-dark: #785a28;
+  --color-lol-purple: #7b3fe4;
+  --color-lol-blue: #0a1428;
+  --color-lol-blue-light: #1e3a5f;
+
+  /* Arkaplan katmanları */
+  --color-bg-deep: #010a13;
+  --color-bg-primary: #0a1428;
+  --color-bg-surface: #111d35;
+  --color-bg-elevated: #1a2843;
+
+  /* Metin */
+  --color-text-primary: #f0e6d2;
+  --color-text-secondary: #a09b8c;
+  --color-text-muted: #5b5a56;
+
+  /* Kenarlık */
+  --color-border-subtle: #1e3a5f;
+  --color-border-strong: #785a28;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* ============================================
+   GLOBAL
+   ============================================ */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg-deep);
+  color: var(--color-text-primary);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-lol-gold-dark);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-lol-gold);
+}
+
+/* Selection */
+::selection {
+  background: var(--color-lol-gold);
+  color: var(--color-bg-deep);
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Gradient text */
+.text-gradient-gold {
+  background: linear-gradient(135deg, #f0e6d2 0%, #c8aa6e 50%, #785a28 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Kart */
+.card-lol {
+  background: linear-gradient(135deg, var(--color-bg-surface) 0%, var(--color-bg-primary) 100%);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-lol:hover {
+  border-color: var(--color-lol-gold-dark);
+  box-shadow: 0 0 24px rgba(200, 170, 110, 0.12);
+  transform: translateY(-2px);
+}
+
+/* Buton — birincil */
+.btn-primary {
+  background: linear-gradient(135deg, #c8aa6e 0%, #785a28 100%);
+  color: #010a13;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #f0e6d2 0%, #c8aa6e 100%);
+  box-shadow: 0 0 20px rgba(200, 170, 110, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Buton — ikincil */
+.btn-secondary {
+  background: transparent;
+  color: var(--color-lol-gold);
+  border: 1px solid var(--color-lol-gold-dark);
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: rgba(200, 170, 110, 0.1);
+  border-color: var(--color-lol-gold);
+  color: var(--color-lol-gold-light);
+}
+
+/* Bölücü */
+.divider-lol {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--color-lol-gold-dark) 50%, transparent 100%);
+  margin: 2rem 0;
+}
+
+/* Animasyonlar */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* ============================================
+   AKU ÖZEL İMZASI — Animasyonlar
+   ============================================ */
+
+/* Ana gradient kayması */
+@keyframes aku-gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Neon parlama */
+@keyframes aku-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 4px rgba(200, 170, 110, 0.8))
+            drop-shadow(0 0 12px rgba(200, 170, 110, 0.4));
+  }
+  50% {
+    filter: drop-shadow(0 0 8px rgba(200, 170, 110, 1))
+            drop-shadow(0 0 24px rgba(123, 63, 228, 0.6));
+  }
+}
+
+/* Hafif yukarı-aşağı süzülme */
+@keyframes aku-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* Partikül parlaması */
+@keyframes aku-sparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(180deg);
+  }
+}
+
+/* Ana AKU text */
+.aku-signature {
+  display: inline-block;
+  position: relative;
+  font-weight: 800;
+  font-size: 1.1em;
+  letter-spacing: 0.05em;
+  padding: 0 0.4em;
+  background: linear-gradient(
+    120deg,
+    #f0e6d2 0%,
+    #c8aa6e 20%,
+    #7b3fe4 40%,
+    #c8aa6e 60%,
+    #f0e6d2 80%,
+    #c8aa6e 100%
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: aku-gradient-shift 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px rgba(200, 170, 110, 0.6));
+  transition: filter 0.3s ease;
+}
+
+.aku-signature:hover {
+  animation: aku-gradient-shift 1.5s ease-in-out infinite,
+             aku-glow 1.5s ease-in-out infinite;
+  cursor: default;
+}
+
+/* Partikül konteyner */
+.aku-signature-wrapper {
+  display: inline-block;
+  position: relative;
+  animation: aku-float 3s ease-in-out infinite;
+}
+
+/* Partiküller */
+.aku-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  animation: aku-sparkle 2s ease-in-out infinite;
+}
+
+.aku-particle:nth-child(1) {
+  top: -6px;
+  left: 10%;
+  background: #f0e6d2;
+  animation-delay: 0s;
+  box-shadow: 0 0 8px #f0e6d2;
+}
+
+.aku-particle:nth-child(2) {
+  top: -4px;
+  right: 15%;
+  background: #c8aa6e;
+  animation-delay: 0.4s;
+  box-shadow: 0 0 10px #c8aa6e;
+}
+
+.aku-particle:nth-child(3) {
+  bottom: -4px;
+  left: 20%;
+  background: #7b3fe4;
+  animation-delay: 0.8s;
+  box-shadow: 0 0 10px #7b3fe4;
+}
+
+.aku-particle:nth-child(4) {
+  bottom: -6px;
+  right: 10%;
+  background: #c8aa6e;
+  animation-delay: 1.2s;
+  box-shadow: 0 0 8px #c8aa6e;
+}
+
+.aku-particle:nth-child(5) {
+  top: 50%;
+  left: -8px;
+  background: #f0e6d2;
+  animation-delay: 1.6s;
+  box-shadow: 0 0 6px #f0e6d2;
+}
+
+.aku-particle:nth-child(6) {
+  top: 30%;
+  right: -8px;
+  background: #7b3fe4;
+  animation-delay: 2s;
+  box-shadow: 0 0 6px #7b3fe4;
+}
+
+/* ============================================
+   MODAL ANİMASYONLARI — Minimalist
+   ============================================ */
+
+/* Modal arka plan fade in */
+@keyframes modal-backdrop-in {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(8px);
+  }
+}
+
+/* Modal içerik scale + fade + hafif yukarı */
+@keyframes modal-content-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Modal kapatma */
+@keyframes modal-backdrop-out {
+  from {
+    opacity: 1;
+    backdrop-filter: blur(8px);
+  }
+  to {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+}
+
+@keyframes modal-content-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.94) translateY(10px);
+  }
+}
+
+/* Banner'da yumuşak gradient akışı */
+@keyframes banner-flow {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Pulse — online durum noktası için */
+@keyframes status-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0);
+  }
+}
+
+/* Modal utility */
+.modal-backdrop {
+  animation: modal-backdrop-in 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-backdrop.closing {
+  animation: modal-backdrop-out 180ms cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+.modal-content {
+  animation: modal-content-in 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-content.closing {
+  animation: modal-content-out 200ms cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+/* Animasyonlu banner */
+.banner-animated {
+  background-size: 200% 200%;
+  animation: banner-flow 8s ease-in-out infinite;
+}
+
+/* Status pulse */
+.status-pulse-online {
+  animation: status-pulse 2s ease-in-out infinite;
+}
+
+/* Smooth transitions — her şey için */
+button, a, input, textarea, select {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Modal içi focus */
+.modal-content input:focus,
+.modal-content textarea:focus,
+.modal-content select:focus {
+  box-shadow: 0 0 0 3px rgba(200, 170, 110, 0.1);
+}
+
+/* Buton parlaması */
+.btn-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.6s;
+}
+
+.btn-glow:hover::before {
+  transform: translateX(100%);
+}
+
+/* ============================================
+   MINIMAL INPUT — Modal için
+   ============================================ */
+
+/* ============================================
+   MINIMAL INPUT — Premium
+   ============================================ */
+
+.input-minimal {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid rgba(30, 58, 95, 0.6);
+  background: rgba(10, 20, 40, 0.6);
+  padding: 0.55rem 0.75rem;
+  font-size: 0.875rem;
+  color: #f0e6d2;
+  outline: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(4px);
+}
+
+.input-minimal::placeholder {
+  color: #5b5a56;
+}
+
+.input-minimal:hover:not(:focus) {
+  border-color: rgba(120, 90, 40, 0.7);
+  background: rgba(10, 20, 40, 0.8);
+}
+
+.input-minimal:focus {
+  border-color: rgba(200, 170, 110, 0.6);
+  background: rgba(10, 20, 40, 0.95);
+  box-shadow:
+    0 0 0 3px rgba(200, 170, 110, 0.08),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.02);
 }

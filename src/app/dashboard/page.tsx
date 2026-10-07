@@ -22,100 +22,138 @@ export default async function DashboardPage() {
     .eq('id', user.id)
     .single()
 
-  // Kendi build'lerinin sayısı
   const { count: buildCount } = await supabase
     .from('builds')
     .select('id', { count: 'exact', head: true })
     .eq('user_id', user.id)
 
-  // Yayında olanlar
   const { count: publishedCount } = await supabase
     .from('builds')
     .select('id', { count: 'exact', head: true })
     .eq('user_id', user.id)
     .eq('status', 'published')
 
-  // Favori sayısı
   const { count: favoriteCount } = await supabase
     .from('favorites')
     .select('id', { count: 'exact', head: true })
     .eq('user_id', user.id)
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white">Kontrol Paneli</h1>
-        <p className="mt-2 text-gray-400">
-          Hoş geldin,{' '}
-          <span className="text-yellow-500">
-            {profile?.username ?? user.email}
-          </span>
-        </p>
+    <div className="relative min-h-screen">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 right-1/4 h-96 w-96 rounded-full bg-[#7b3fe4]/10 blur-[120px]" />
       </div>
 
-      {/* İstatistik kartları */}
-      <div className="mb-8 grid gap-4 sm:grid-cols-3">
-        <Link
-          href="/dashboard/builds"
-          className="rounded-lg border border-gray-800 bg-gray-900 p-6 transition hover:border-yellow-500/50"
-        >
-          <div className="text-3xl font-bold text-white">{buildCount ?? 0}</div>
-          <div className="mt-1 text-sm text-gray-400">Toplam Build</div>
-          <div className="mt-2 text-xs text-yellow-500">
-            {publishedCount ?? 0} tanesi yayında
+      <div className="relative mx-auto max-w-7xl px-6 py-12">
+        {/* Başlık */}
+        <div className="mb-10">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#785a28] bg-[#111d35] px-3 py-1">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#c8aa6e]" />
+            <span className="text-xs font-medium uppercase tracking-widest text-[#c8aa6e]">
+              Kontrol Paneli
+            </span>
           </div>
-        </Link>
+          <h1 className="text-4xl font-bold text-[#f0e6d2] sm:text-5xl">
+            Hoş geldin,{' '}
+            <span className="text-gradient-gold">
+              {profile?.username?.split('@')[0] ?? 'Summoner'}
+            </span>
+          </h1>
+          <p className="mt-3 text-[#a09b8c]">
+            Build&apos;lerini yönet, favorilerini gör, yeni içerik oluştur.
+          </p>
+        </div>
 
-        <Link
-          href="/dashboard/favorites"
-          className="rounded-lg border border-gray-800 bg-gray-900 p-6 transition hover:border-yellow-500/50"
-        >
-          <div className="text-3xl font-bold text-yellow-500">
-            ⭐ {favoriteCount ?? 0}
-          </div>
-          <div className="mt-1 text-sm text-gray-400">Favori</div>
-        </Link>
+        {/* İstatistik kartları */}
+        <div className="mb-10 grid gap-5 sm:grid-cols-3">
+          <Link
+            href="/dashboard/builds"
+            className="card-lol group p-6"
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="text-xs uppercase tracking-widest text-[#5b5a56]">
+                  Toplam Build
+                </div>
+                <div className="mt-2 text-4xl font-bold text-[#f0e6d2]">
+                  {buildCount ?? 0}
+                </div>
+                <div className="mt-2 text-xs text-[#c8aa6e]">
+                  {publishedCount ?? 0} tanesi yayında
+                </div>
+              </div>
+              <div className="text-3xl opacity-50 transition group-hover:opacity-100">
+                🔨
+              </div>
+            </div>
+          </Link>
 
-        <Link
-          href="/builds/new"
-          className="rounded-lg border border-gray-800 bg-gray-900 p-6 transition hover:border-yellow-500/50"
-        >
-          <div className="text-3xl font-bold text-white">+</div>
-          <div className="mt-1 text-sm text-gray-400">Yeni Build</div>
-          <div className="mt-2 text-xs text-yellow-500">
-            Hemen oluştur
-          </div>
-        </Link>
-      </div>
+          <Link
+            href="/dashboard/favorites"
+            className="card-lol group p-6"
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="text-xs uppercase tracking-widest text-[#5b5a56]">
+                  Favorilerim
+                </div>
+                <div className="mt-2 text-4xl font-bold text-[#c8aa6e]">
+                  {favoriteCount ?? 0}
+                </div>
+                <div className="mt-2 text-xs text-[#a09b8c]">
+                  Beğendiğin build&apos;ler
+                </div>
+              </div>
+              <div className="text-3xl opacity-50 transition group-hover:opacity-100">
+                ⭐
+              </div>
+            </div>
+          </Link>
 
-      {/* Hesap bilgileri */}
-      <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
-        <h2 className="text-xl font-semibold text-white">Hesap Bilgileri</h2>
-        <dl className="mt-4 space-y-2 text-sm">
-          <div className="flex gap-4">
-            <dt className="w-32 text-gray-500">Kullanıcı ID:</dt>
-            <dd className="font-mono text-xs text-gray-300">{user.id}</dd>
-          </div>
-          <div className="flex gap-4">
-            <dt className="w-32 text-gray-500">E-posta:</dt>
-            <dd className="text-gray-300">{user.email}</dd>
-          </div>
-          <div className="flex gap-4">
-            <dt className="w-32 text-gray-500">Kayıt tarihi:</dt>
-            <dd className="text-gray-300">
-              {new Date(user.created_at).toLocaleDateString('tr-TR')}
-            </dd>
-          </div>
-        </dl>
-      </div>
+          <Link href="/builds/new" className="card-lol group p-6">
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="text-xs uppercase tracking-widest text-[#5b5a56]">
+                  Yeni Build
+                </div>
+                <div className="mt-2 text-4xl font-bold text-[#f0e6d2]">+</div>
+                <div className="mt-2 text-xs text-[#c8aa6e]">
+                  Hemen oluştur
+                </div>
+              </div>
+              <div className="text-3xl opacity-50 transition group-hover:opacity-100">
+                ✨
+              </div>
+            </div>
+          </Link>
+        </div>
 
-      <div className="mt-6">
-        <Link
-          href="/api/logout"
-          className="text-sm text-red-400 hover:underline"
-        >
-          Çıkış yap
-        </Link>
+        {/* Hesap bilgileri */}
+        <div className="card-lol p-6">
+          <h2 className="mb-5 flex items-center gap-2 text-lg font-semibold text-[#f0e6d2]">
+            <span>👤</span> Hesap Bilgileri
+          </h2>
+          <dl className="space-y-3 text-sm">
+            <div className="flex flex-wrap gap-4">
+              <dt className="w-32 text-[#5b5a56]">E-posta</dt>
+              <dd className="text-[#f0e6d2]">{user.email}</dd>
+            </div>
+            <div className="flex flex-wrap gap-4">
+              <dt className="w-32 text-[#5b5a56]">Kullanıcı ID</dt>
+              <dd className="font-mono text-xs text-[#a09b8c]">{user.id}</dd>
+            </div>
+            <div className="flex flex-wrap gap-4">
+              <dt className="w-32 text-[#5b5a56]">Kayıt tarihi</dt>
+              <dd className="text-[#a09b8c]">
+                {new Date(user.created_at).toLocaleDateString('tr-TR', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}
+              </dd>
+            </div>
+          </dl>
+        </div>
       </div>
     </div>
   )

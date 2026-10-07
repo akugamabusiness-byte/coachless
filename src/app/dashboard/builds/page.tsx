@@ -14,6 +14,14 @@ const ROLE_LABELS: Record<string, string> = {
   support: 'Destek',
 }
 
+const ROLE_ICONS: Record<string, string> = {
+  top: '⚔️',
+  jungle: '🌲',
+  mid: '🔮',
+  adc: '🏹',
+  support: '🛡️',
+}
+
 export default async function MyBuildsPage() {
   const supabase = await createClient()
 
@@ -35,127 +43,151 @@ export default async function MyBuildsPage() {
   const published = builds?.filter((b) => b.status === 'published') ?? []
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <Link
-            href="/dashboard"
-            className="text-sm text-gray-400 hover:text-yellow-500"
-          >
-            ← Panel
-          </Link>
-          <h1 className="mt-3 text-3xl font-bold text-white">
-            🔨 Build&apos;lerim
-          </h1>
-          <p className="mt-2 text-gray-400">
-            Kendi build&apos;lerini yönet: yayınla, düzenle veya sil.
-          </p>
-        </div>
-        <Link
-          href="/builds/new"
-          className="rounded-md bg-yellow-500 px-4 py-2 text-sm font-medium text-gray-950 transition hover:bg-yellow-400"
-        >
-          + Yeni Build
-        </Link>
+    <div className="relative min-h-screen">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 right-1/4 h-96 w-96 rounded-full bg-[#c8aa6e]/5 blur-[120px]" />
       </div>
 
-      {error && (
-        <div className="rounded-md bg-red-950 p-4 text-sm text-red-400">
-          Hata: {error.message}
-        </div>
-      )}
-
-      {!error && builds && builds.length === 0 && (
-        <div className="rounded-lg border border-dashed border-gray-800 bg-gray-900/50 p-12 text-center">
-          <p className="text-4xl">🔨</p>
-          <p className="mt-4 text-gray-400">Henüz build oluşturmadın.</p>
-          <Link
-            href="/builds/new"
-            className="mt-4 inline-block text-yellow-500 hover:underline"
-          >
-            İlk build&apos;ini oluştur →
+      <div className="relative mx-auto max-w-7xl px-6 py-12">
+        {/* Başlık */}
+        <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <Link
+              href="/dashboard"
+              className="text-sm text-[#a09b8c] transition hover:text-[#c8aa6e]"
+            >
+              ← Panel
+            </Link>
+            <h1 className="mt-3 text-4xl font-bold text-[#f0e6d2]">
+              🔨 <span className="text-gradient-gold">Build&apos;lerim</span>
+            </h1>
+            <p className="mt-2 text-[#a09b8c]">
+              Kendi build&apos;lerini yönet: yayınla, düzenle veya sil.
+            </p>
+          </div>
+          <Link href="/builds/new" className="btn-primary">
+            + Yeni Build
           </Link>
         </div>
-      )}
 
-      {builds && builds.length > 0 && (
-        <div className="mb-8 grid gap-4 sm:grid-cols-3">
-          <div className="rounded-lg border border-gray-800 bg-gray-900 p-4">
-            <div className="text-2xl font-bold text-white">
-              {builds.length}
-            </div>
-            <div className="mt-1 text-xs text-gray-400">Toplam Build</div>
+        {error && (
+          <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-400">
+            Hata: {error.message}
           </div>
-          <div className="rounded-lg border border-gray-800 bg-gray-900 p-4">
-            <div className="text-2xl font-bold text-green-400">
-              {published.length}
-            </div>
-            <div className="mt-1 text-xs text-gray-400">Yayında</div>
-          </div>
-          <div className="rounded-lg border border-gray-800 bg-gray-900 p-4">
-            <div className="text-2xl font-bold text-yellow-400">
-              {drafts.length}
-            </div>
-            <div className="mt-1 text-xs text-gray-400">Draft</div>
-          </div>
-        </div>
-      )}
+        )}
 
-      {drafts.length > 0 && (
-        <section className="mb-10">
-          <h2 className="mb-4 text-xl font-semibold text-white">
-            📝 Draft&apos;lar
-            <span className="ml-2 text-sm font-normal text-gray-500">
-              ({drafts.length}) — sadece sen görürsün
-            </span>
-          </h2>
-          <div className="space-y-3">
-            {drafts.map((build) => (
-              <BuildRow key={build.id} build={build} />
-            ))}
+        {/* İstatistikler */}
+        {builds && builds.length > 0 && (
+          <div className="mb-10 grid gap-5 sm:grid-cols-3">
+            <div className="card-lol p-5">
+              <div className="text-xs uppercase tracking-widest text-[#5b5a56]">
+                Toplam
+              </div>
+              <div className="mt-2 text-3xl font-bold text-[#f0e6d2]">
+                {builds.length}
+              </div>
+            </div>
+            <div className="card-lol p-5">
+              <div className="text-xs uppercase tracking-widest text-[#5b5a56]">
+                Yayında
+              </div>
+              <div className="mt-2 text-3xl font-bold text-emerald-400">
+                {published.length}
+              </div>
+            </div>
+            <div className="card-lol p-5">
+              <div className="text-xs uppercase tracking-widest text-[#5b5a56]">
+                Draft
+              </div>
+              <div className="mt-2 text-3xl font-bold text-[#c8aa6e]">
+                {drafts.length}
+              </div>
+            </div>
           </div>
-        </section>
-      )}
+        )}
 
-      {published.length > 0 && (
-        <section>
-          <h2 className="mb-4 text-xl font-semibold text-white">
-            🚀 Yayında
-            <span className="ml-2 text-sm font-normal text-gray-500">
-              ({published.length}) — herkes görebilir
-            </span>
-          </h2>
-          <div className="space-y-3">
-            {published.map((build) => (
-              <BuildRow key={build.id} build={build} />
-            ))}
+        {/* Boş durum */}
+        {!error && builds && builds.length === 0 && (
+          <div className="card-lol p-16 text-center">
+            <div className="mb-4 text-5xl">🔨</div>
+            <p className="text-lg text-[#a09b8c]">Henüz build oluşturmadın.</p>
+            <Link href="/builds/new" className="mt-6 inline-block btn-primary">
+              İlk build&apos;ini oluştur
+            </Link>
           </div>
-        </section>
-      )}
+        )}
+
+        {/* Draft'lar */}
+        {drafts.length > 0 && (
+          <section className="mb-12">
+            <div className="mb-5 flex items-center gap-3">
+              <h2 className="text-xl font-semibold text-[#f0e6d2]">
+                📝 Draft&apos;lar
+              </h2>
+              <span className="rounded-full border border-[#785a28] bg-[#785a28]/20 px-2 py-0.5 text-xs text-[#c8aa6e]">
+                {drafts.length}
+              </span>
+              <span className="text-xs text-[#5b5a56]">— sadece sen görürsün</span>
+            </div>
+            <div className="space-y-3">
+              {drafts.map((build) => (
+                <BuildRow key={build.id} build={build} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Yayında */}
+        {published.length > 0 && (
+          <section>
+            <div className="mb-5 flex items-center gap-3">
+              <h2 className="text-xl font-semibold text-[#f0e6d2]">
+                🚀 Yayında
+              </h2>
+              <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-400">
+                {published.length}
+              </span>
+              <span className="text-xs text-[#5b5a56]">— herkes görebilir</span>
+            </div>
+            <div className="space-y-3">
+              {published.map((build) => (
+                <BuildRow key={build.id} build={build} />
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
     </div>
   )
 }
 
 function BuildRow({ build }: { build: any }) {
   return (
-    <div className="rounded-lg border border-gray-800 bg-gray-900 p-4 transition hover:border-gray-700">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+    <div className="card-lol p-5">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="min-w-0 flex-1">
           <Link
             href={`/builds/${build.id}`}
-            className="block font-semibold text-white hover:text-yellow-500"
+            className="group flex items-center gap-3"
           >
-            {build.title}
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0a1428] px-2.5 py-1 text-xs font-medium text-[#c8aa6e]">
+              <span>{ROLE_ICONS[build.role] ?? '⚔️'}</span>
+              {ROLE_LABELS[build.role] ?? build.role}
+            </span>
+            <div className="min-w-0">
+              <div className="text-xs uppercase tracking-widest text-[#5b5a56]">
+                {build.champion}
+              </div>
+              <div className="truncate font-semibold text-[#f0e6d2] transition group-hover:text-[#c8aa6e]">
+                {build.title}
+              </div>
+            </div>
           </Link>
-          <p className="mt-1 text-sm text-gray-400">
-            <span className="text-yellow-500">{build.champion}</span> ·{' '}
-            {ROLE_LABELS[build.role] ?? build.role}
-          </p>
-          <p className="mt-2 text-xs text-gray-500">
+          <p className="mt-2 text-xs text-[#5b5a56]">
             Güncellenme:{' '}
             {new Date(build.updated_at).toLocaleDateString('tr-TR', {
               day: 'numeric',
-              month: 'long',
+              month: 'short',
               year: 'numeric',
             })}
           </p>

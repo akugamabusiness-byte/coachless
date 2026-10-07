@@ -31,7 +31,6 @@ export default function FavoriteButton({
     setMessage(null)
 
     if (favorited) {
-      // Favoriden çıkar
       const { error } = await supabase
         .from('favorites')
         .delete()
@@ -44,13 +43,11 @@ export default function FavoriteButton({
         setFavorited(false)
       }
     } else {
-      // Favoriye ekle
       const { error } = await supabase
         .from('favorites')
         .insert({ user_id: userId, build_id: buildId })
 
       if (error) {
-        // Aynı build zaten favoride ise (unique constraint) sessizce geç
         if (error.code === '23505') {
           setFavorited(true)
         } else {
@@ -71,24 +68,16 @@ export default function FavoriteButton({
         disabled={loading}
         className={`flex items-center gap-2 rounded-md border px-4 py-2 text-sm font-medium transition disabled:opacity-50 ${
           favorited
-            ? 'border-yellow-500 bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20'
-            : 'border-gray-700 text-gray-300 hover:border-yellow-500 hover:text-yellow-500'
+            ? 'border-[#c8aa6e] bg-[#785a28]/20 text-[#c8aa6e] hover:bg-[#785a28]/30'
+            : 'border-[#1e3a5f] text-[#a09b8c] hover:border-[#785a28] hover:text-[#c8aa6e]'
         }`}
         title={favorited ? 'Favorilerden çıkar' : 'Favorilere ekle'}
       >
         <span className="text-lg">{favorited ? '★' : '☆'}</span>
-        <span>
-          {loading
-            ? '...'
-            : favorited
-            ? 'Favoride'
-            : 'Favorilere Ekle'}
-        </span>
+        <span>{loading ? '...' : favorited ? 'Favoride' : 'Favorilere Ekle'}</span>
       </button>
 
-      {message && (
-        <p className="text-xs text-red-400">{message}</p>
-      )}
+      {message && <p className="text-xs text-red-400">{message}</p>}
     </div>
   )
 }

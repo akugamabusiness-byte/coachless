@@ -72,17 +72,16 @@ export default function BuildActions({
         disabled={loading}
         className={`rounded-md border px-3 py-1.5 text-xs font-medium transition disabled:opacity-50 ${
           status === 'draft'
-            ? 'border-green-700 bg-green-950/50 text-green-400 hover:bg-green-950'
-            : 'border-yellow-700 bg-yellow-950/50 text-yellow-400 hover:bg-yellow-950'
+            ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
+            : 'border-[#785a28] bg-[#785a28]/20 text-[#c8aa6e] hover:bg-[#785a28]/30'
         }`}
-        title={status === 'draft' ? 'Yayınla' : 'Draft yap'}
       >
         {status === 'draft' ? '🚀 Yayınla' : '📝 Draft Yap'}
       </button>
 
       <Link
         href={`/builds/${buildId}/edit`}
-        className="rounded-md border border-gray-700 px-3 py-1.5 text-xs font-medium text-gray-300 transition hover:border-yellow-500 hover:text-yellow-500"
+        className="rounded-md border border-[#1e3a5f] px-3 py-1.5 text-xs font-medium text-[#a09b8c] transition hover:border-[#785a28] hover:text-[#c8aa6e]"
       >
         ✏️ Düzenle
       </Link>
@@ -90,7 +89,7 @@ export default function BuildActions({
       <button
         onClick={() => setConfirmOpen(true)}
         disabled={loading}
-        className="rounded-md border border-red-900 bg-red-950/50 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:bg-red-950 disabled:opacity-50"
+        className="rounded-md border border-red-500/30 bg-red-500/5 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:bg-red-500/10 disabled:opacity-50"
       >
         🗑️ Sil
       </button>
